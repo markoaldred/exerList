@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
+import database
 
 root = Tk()
 root.title('Checklists')
@@ -35,14 +36,22 @@ checklist_scrollbar.config(command=checklists_listbox.yview)
 checklist_scrollbar.grid(column=1, row=0, sticky=(N,S))
 checklists_listbox.grid(column=0, row=0, ipadx=120, ipady=200)
 
-
-#checklists_label.grid(column=0, row=0, padx=20, pady=(20,0), sticky=(N,E,W,S))
-
+'''
 # Add list of items to listbox
 my_list = ["One", "Two", "Three", "abc", "asfkas", "ahakfs", "ahsoufc", "nafbwi"]
 
 for item in my_list:
 	checklists_listbox.insert(0, item)
+'''
+
+#run the database.py to build the temporary database
+database.build_db()
+data = database.link_lstbox_db()
+
+for item in data:
+	checklists_listbox.insert(item['listbox_item'], item['name'])
+	#print(item['listbox_item'], item['name'])
+
 
 def delete():
 	for item in reversed(checklists_listbox.curselection()):
