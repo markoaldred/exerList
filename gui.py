@@ -49,7 +49,7 @@ database.build_db()
 data = database.link_lstbox_db()
 
 for item in data:
-	checklists_listbox.insert(item['listbox_item'], item['name'])
+	checklists_listbox.insert(item['item_no'], item['name'])
 	#print(item['listbox_item'], item['name'])
 
 
@@ -62,6 +62,10 @@ def select():
 
 def new():
 	checklists_listbox.insert(END, entry.get())
+	#Database add operation
+	next_item = checklists_listbox.size() + 1
+	database.Checklist.add_item(item_no=next_item, name=entry.get())
+	#Remove the pop-up screen
 	top.destroy()
 
 def new_popup():

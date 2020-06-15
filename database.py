@@ -6,21 +6,29 @@ from sqlalchemy.orm import Session
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
-engine = create_engine('sqlite://', echo=True)
+engine = create_engine('sqlite:///test.db', echo=True)
 
-class Checklist(Base):
+class TableActions(object):
+    @classmethod
+    def add_item(cls, **kwargs):
+        obj = cls(**kwargs)
+        session.add(obj)
+        session.commit()
+
+class Checklist(TableActions, Base):
     __tablename__ = 'checklist'
     
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
+    item_no = Column(Integer, nullable=False)
     
     tasks = relationship("Task", back_populates="checklist")
     
     def __repr__(self):
         return "<User(%r, %r)>" % (
             self.id, self.name)
-    
-class Task(Base):
+
+class Task(TableActions, Base):
     __tablename__ = 'task'
     
     id = Column(Integer, primary_key=True)
@@ -37,25 +45,23 @@ def build_db():
     Base.metadata.create_all(engine)
     session = Session(bind=engine)
 
+    '''
     #Example of adding multiple items to database
     session.add_all([
-        Checklist(name="LT Ciruculation Pump Calculation"),
-        Checklist(name="Lube Oil PSV Calculation"),
-        Checklist(name="HT PSV Calculation"),
-        Checklist(name='Underground Drawing')
+        Checklist(item_no=0, name="LT Ciruculation Pump Calculation"),
+        Checklist(item_no=1, name="Lube Oil PSV Calculation"),
+        Checklist(item_no=2, name="HT PSV Calculation"),
+        Checklist(item_no=3, name='Underground Drawing')
     ])
     session.commit()
-
+    '''
 #Create a list that links that data on the listbox to the database
 def link_lstbox_db():
     linked_data = []
-    listbox_item = 0
     for row in session.query(Checklist):
-        d = {'listbox_item':listbox_item, 'id':row.id, 'name':row.name}
+        d = {'id':row.id, 'name':row.name, 'item_no':row.item_no}
         linked_data.append(d)
-        listbox_item += 1
     return linked_data
-    #print(linked_data)
 
 '''
 #Example of adding Items to checklist
