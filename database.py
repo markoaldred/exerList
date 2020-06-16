@@ -8,14 +8,14 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 engine = create_engine('sqlite:///test.db', echo=True)
 
-class TableActions(object):
+class BaseMixin(object):
     @classmethod
     def add_item(cls, **kwargs):
         obj = cls(**kwargs)
         session.add(obj)
         session.commit()
 
-class Checklist(TableActions, Base):
+class Checklist(BaseMixin, Base):
     __tablename__ = 'checklist'
     
     id = Column(Integer, primary_key=True)
@@ -28,7 +28,7 @@ class Checklist(TableActions, Base):
         return "<User(%r, %r)>" % (
             self.id, self.name)
 
-class Task(TableActions, Base):
+class Task(BaseMixin, Base):
     __tablename__ = 'task'
     
     id = Column(Integer, primary_key=True)
@@ -39,6 +39,69 @@ class Task(TableActions, Base):
     
     def __repr__(self):
         return "Task: %r" % self.description
+
+class Tag(BaseMixin, Base):
+    __tablename__ = 'tag'
+
+    id = Column(Integer, primary_key=True)
+    parent_id = Column(Integer, ForeignKey('tag_parent.id'))
+    name = Column(String, nullable=False)
+    item_no = Column(Integer, nullable=False)
+
+    tagparent = relationship("TagParent", back_populates="tags")
+
+    def __repr__(self):
+        return "Tag: %r" % self.name
+
+class TagParent(BaseMixin, Base):
+    __tablename__ = 'tag_parent'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False)
+    item_no = Column(Integer, nullable=False)
+
+    tags = relationship("Tag", back_populates="tag_parent")
+
+    def __repr__(self):
+        return "Tag Type: %r" % self.name
+
+class InstanceChecklist(BaseMixin, Base):
+    __tablename__ = 'instance_checklist'
+
+    id = Column(Integer, primary_key=True)
+    date = Column(String, nullable=False)
+    checklist_id = Column(Integer, ForeignKey('checklist.id'))
+    checklist_name = Column(String, nullable=False)
+    document_no = Column(String, nullable=False)
+
+    checklist = relationship("Checklist", back_populates="instance_checklist")
+    instance_tasks = relationship("InstanceTask", back_populates="instance_checklist")
+
+    def __repr__(self):
+        return "Date: %s, Checklist Name: %s" % (date, checklist_name)
+
+class InstanceTask(BaseMixin, Base):
+    __tablename__ = 'instance_task'
+
+    id = Column(Integer, primary_key=True)
+    instance_checklist_id = Column(Integer, ForeignKey('instance_checklist.id'))
+    task_name = Column(String, nullable=False)
+
+    instance_checklist = relationship("InstanceChecklist", back_populates="instance_task")
+
+    def __repr__(self):
+        return "Instance Task: %s" % (task_name)
+
+'''
+class ChecklistTag(BaseMixin, Base):
+    __tablename__ = 'checklist_tag'
+
+    tag_id = Column(Integer, ForeignKey('tag.id'))
+    checklist_id = Column(Integer, ForeignKey('checklist.id'))
+
+    def __repr__(self):
+        return "Tag: %s, Checklist: %s" % (tag_id, checklist_id)
+'''
 
 def build_db():
     global session
