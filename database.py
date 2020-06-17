@@ -23,6 +23,7 @@ class Checklist(BaseMixin, Base):
     item_no = Column(Integer, nullable=False)
     
     tasks = relationship("Task", back_populates="checklist")
+    instance_checklists = relationship("InstanceChecklist", back_populates="checklist")
     
     def __repr__(self):
         return "<User(%r, %r)>" % (
@@ -40,19 +41,6 @@ class Task(BaseMixin, Base):
     def __repr__(self):
         return "Task: %r" % self.description
 
-class Tag(BaseMixin, Base):
-    __tablename__ = 'tag'
-
-    id = Column(Integer, primary_key=True)
-    parent_id = Column(Integer, ForeignKey('tag_parent.id'))
-    name = Column(String, nullable=False)
-    item_no = Column(Integer, nullable=False)
-
-    tagparent = relationship("TagParent", back_populates="tags")
-
-    def __repr__(self):
-        return "Tag: %r" % self.name
-
 class TagParent(BaseMixin, Base):
     __tablename__ = 'tag_parent'
 
@@ -63,7 +51,21 @@ class TagParent(BaseMixin, Base):
     tags = relationship("Tag", back_populates="tag_parent")
 
     def __repr__(self):
-        return "Tag Type: %r" % self.name
+        return "Tag Group: %r" % self.name
+    
+class Tag(BaseMixin, Base):
+    __tablename__ = 'tag'
+
+    id = Column(Integer, primary_key=True)
+    parent_id = Column(Integer, ForeignKey('tag_parent.id'))
+    name = Column(String, nullable=False)
+    item_no = Column(Integer, nullable=False)
+
+    tag_parent = relationship("TagParent", back_populates="tags")
+
+    def __repr__(self):
+        return "Tag: %r" % self.name
+
 
 class InstanceChecklist(BaseMixin, Base):
     __tablename__ = 'instance_checklist'
@@ -74,7 +76,7 @@ class InstanceChecklist(BaseMixin, Base):
     checklist_name = Column(String, nullable=False)
     document_no = Column(String, nullable=False)
 
-    checklist = relationship("Checklist", back_populates="instance_checklist")
+    checklist = relationship("Checklist", back_populates="instance_checklists")
     instance_tasks = relationship("InstanceTask", back_populates="instance_checklist")
 
     def __repr__(self):
@@ -87,7 +89,7 @@ class InstanceTask(BaseMixin, Base):
     instance_checklist_id = Column(Integer, ForeignKey('instance_checklist.id'))
     task_name = Column(String, nullable=False)
 
-    instance_checklist = relationship("InstanceChecklist", back_populates="instance_task")
+    instance_checklist = relationship("InstanceChecklist", back_populates="instance_tasks")
 
     def __repr__(self):
         return "Instance Task: %s" % (task_name)
