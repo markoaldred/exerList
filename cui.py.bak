@@ -24,11 +24,11 @@ def checklist_menu():
 		c2.append(entry.name)
 	df = pd.DataFrame({'Item_No' : c1,
 						'Checklist_Description' : c2})
-	print((tabulate(df, headers='keys', tablefmt='psql')))
+	print(tabulate(df, headers='keys', tablefmt='psql'))
 	actions('NEDRU')
-	i = eval(input('Action: '))
+	i = input('Action: ')
 	if i == 'N':
-		new_name = eval(input('Checklist Name: '))
+		new_name = input('Checklist Name: ')
 		database.Checklist.add_item(item_no=database.next_item_no(database.Checklist), name=new_name)
 
 def actions(menu_items):
@@ -36,7 +36,7 @@ def actions(menu_items):
 	print('_______________________________________\n')
 
 	for item in menu_items:
-		print((item + " - " + actions[item]))
+		print(item + " - " + actions[item])
 	print('_______________________________________\n')
 
 checklist_menu()
