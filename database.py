@@ -3,10 +3,13 @@ from sqlalchemy import ForeignKey
 from sqlalchemy import create_engine
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import Session
+from sqlalchemy.sql import func
 from sqlalchemy.ext.declarative import declarative_base
 
+global session
 Base = declarative_base()
 engine = create_engine('sqlite:///test.db', echo=True)
+session = Session(bind=engine)
 
 class BaseMixin(object):
     @classmethod
@@ -106,9 +109,7 @@ class ChecklistTag(BaseMixin, Base):
 '''
 
 def build_db():
-    global session
     Base.metadata.create_all(engine)
-    session = Session(bind=engine)
 
     '''
     #Example of adding multiple items to database
@@ -127,6 +128,13 @@ def link_lstbox_db():
         d = {'id':row.id, 'name':row.name, 'item_no':row.item_no}
         linked_data.append(d)
     return linked_data
+
+
+def next_item_no(table):
+    next_item_no = session.query(func.max(table.item_no)).scalar() + 1
+    return next_item_no
+
+
 
 '''
 #Example of adding Items to checklist
