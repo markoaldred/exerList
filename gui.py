@@ -8,8 +8,6 @@ root.title('Checklists')
 #root.iconbitmap('exerlist.ico')
 root.geometry("400x700")
 
-#State variables [testing diff]
-
 #Create and grid the outer content frame
 c = ttk.Frame(root, padding=(5, 5, 12, 0)) #
 c.grid(column=0, row=0, sticky=(N,W,E,S))
