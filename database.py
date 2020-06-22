@@ -12,11 +12,17 @@ engine = create_engine('sqlite:///test.db', echo=True)
 session = Session(bind=engine)
 
 class BaseMixin(object):
-    @classmethod
-    def add_item(cls, **kwargs):
-        obj = cls(**kwargs)
-        session.add(obj)
-        session.commit()
+	@classmethod
+	def add_item(cls, **kwargs):
+		obj = cls(**kwargs)
+		session.add(obj)
+		session.commit()
+	
+	@classmethod
+	def update_item(cls, **kwargs):
+		obj = cls(**kwargs)
+		session.query(cls).update(obj)
+		session.commit()
 
 class Checklist(BaseMixin, Base):
     __tablename__ = 'checklist'
