@@ -8,21 +8,26 @@ from sqlalchemy.ext.declarative import declarative_base
 
 global session
 Base = declarative_base()
-engine = create_engine('sqlite:///test.db', echo=True)
+engine = create_engine('sqlite:///test.db', echo=False)
 session = Session(bind=engine)
 
 class BaseMixin(object):
-	@classmethod
-	def add_item(cls, **kwargs):
-		obj = cls(**kwargs)
-		session.add(obj)
-		session.commit()
-	
-	@classmethod
-	def update_item(cls, **kwargs):
-		obj = cls(**kwargs)
-		session.query(cls).update(obj)
-		session.commit()
+    @classmethod
+    def add_item(cls, **kwargs):
+        obj = cls(**kwargs)
+        session.add(obj)
+        session.commit()
+
+    @classmethod
+    def update_item(cls, **kwargs):
+        obj = session.query(cls).filter(cls.id == kwargs['id']).one()
+        obj.name = kwargs['name']
+        session.commit()
+
+    @classmethod
+    def find_id(cls, **kwargs):
+        query = session.query(cls).filter(cls.item_no == kwargs['item_no']).one()
+        return query.id
 
 class Checklist(BaseMixin, Base):
     __tablename__ = 'checklist'

@@ -33,9 +33,9 @@ def checklist_menu():
 		database.Checklist.add_item(item_no=next_item, name=new_name)
 	if i == 'r':
 		checklist_no = int(input('Item No: '))
+		id_no = database.Checklist.find_id(item_no=checklist_no)
 		new_name = input ('New Checklist Name: ')
-		
-		database.Checklist.update_item(item_no=checklist_no, name=new_name)
+		database.Checklist.update_item(id=id_no, name=new_name)
 
 def actions(menu_items):
 	actions = {'n':'new', 'e': 'edit', 'd':'delete', 'r':'rename', 'u':'use'}
