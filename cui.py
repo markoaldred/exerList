@@ -31,11 +31,19 @@ def checklist_menu():
 		new_name = input('Checklist Name: ')
 		next_item=database.next_item_no(database.Checklist)
 		database.Checklist.add_item(item_no=next_item, name=new_name)
+		checklist_menu()
 	if i == 'r':
 		checklist_no = int(input('Item No: '))
 		id_no = database.Checklist.find_id(item_no=checklist_no)
 		new_name = input ('New Checklist Name: ')
 		database.Checklist.update_item(id=id_no, name=new_name)
+		checklist_menu()
+	if i == 'd':
+		checklist_no = int(input('Item No: '))
+		id_no = database.Checklist.find_id(item_no=checklist_no)
+		database.Checklist.delete_item(id=id_no)
+		checklist_menu()
+
 
 def actions(menu_items):
 	actions = {'n':'new', 'e': 'edit', 'd':'delete', 'r':'rename', 'u':'use'}

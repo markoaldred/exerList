@@ -20,14 +20,20 @@ class BaseMixin(object):
 
     @classmethod
     def update_item(cls, **kwargs):
-        obj = session.query(cls).filter(cls.id == kwargs['id']).one()
-        obj.name = kwargs['name']
+        obj = session.query(cls).filter(cls.id == kwargs['id']).first()
+        for key, value in kwargs.items():
+            setattr(obj, key, value)
         session.commit()
 
     @classmethod
     def find_id(cls, **kwargs):
-        query = session.query(cls).filter(cls.item_no == kwargs['item_no']).one()
+        query = session.query(cls).filter_by(**kwargs).one()
         return query.id
+
+    @classmethod
+    def delete_item(cls, **kwargs):
+        query = session.query(cls).filter_by(**kwargs).delete()
+        session.commit()
 
 class Checklist(BaseMixin, Base):
     __tablename__ = 'checklist'
