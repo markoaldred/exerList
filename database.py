@@ -8,7 +8,7 @@ from sqlalchemy.ext.declarative import declarative_base
 
 global session
 Base = declarative_base()
-engine = create_engine('sqlite:///test.db', echo=False)
+engine = create_engine('sqlite://', echo=False)
 session = Session(bind=engine)
 
 class BaseMixin(object):
@@ -44,10 +44,31 @@ class Checklist(BaseMixin, Base):
     
     tasks = relationship("Task", back_populates="checklist")
     instance_checklists = relationship("InstanceChecklist", back_populates="checklist")
+    tags = relationship('Tag', secondary='checklist_tags', back_populates='checklists')
     
     def __repr__(self):
         return "<Checklist(%r, %r)>" % (
             self.id, self.name)
+
+class Tag(BaseMixin, Base):
+    __tablename__ = 'tag'
+
+    id = Column(Integer, primary_key=True)
+    parent_id = Column(Integer, ForeignKey('tag_parent.id'))
+    name = Column(String, nullable=False)
+    item_no = Column(Integer, nullable=False)
+
+    checklists = relationship('Checklist', secondary='checklist_tags', back_populates='tags')
+    tag_parent = relationship("TagParent", back_populates="tags")
+
+    def __repr__(self):
+        return "Tag: %r" % self.name
+
+class Checklist_tags(Base):
+    __tablename__ = 'checklist_tags'
+
+    tag_id = Column(Integer, ForeignKey('tag.id'), primary_key = True)
+    checklist_id = Column(Integer, ForeignKey('checklist.id'), primary_key= True)
 
 class Task(BaseMixin, Base):
     __tablename__ = 'task'
@@ -72,20 +93,6 @@ class TagParent(BaseMixin, Base):
 
     def __repr__(self):
         return "Tag Group: %r" % self.name
-    
-class Tag(BaseMixin, Base):
-    __tablename__ = 'tag'
-
-    id = Column(Integer, primary_key=True)
-    parent_id = Column(Integer, ForeignKey('tag_parent.id'))
-    name = Column(String, nullable=False)
-    item_no = Column(Integer, nullable=False)
-
-    tag_parent = relationship("TagParent", back_populates="tags")
-
-    def __repr__(self):
-        return "Tag: %r" % self.name
-
 
 class InstanceChecklist(BaseMixin, Base):
     __tablename__ = 'instance_checklist'
@@ -113,17 +120,6 @@ class InstanceTask(BaseMixin, Base):
 
     def __repr__(self):
         return "Instance Task: %s" % (task_name)
-
-'''
-class ChecklistTag(BaseMixin, Base):
-    __tablename__ = 'checklist_tag'
-
-    tag_id = Column(Integer, ForeignKey('tag.id'))
-    checklist_id = Column(Integer, ForeignKey('checklist.id'))
-
-    def __repr__(self):
-        return "Tag: %s, Checklist: %s" % (tag_id, checklist_id)
-'''
 
 def build_db():
     Base.metadata.create_all(engine)
