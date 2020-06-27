@@ -45,15 +45,18 @@ def checklist_menu():
 		checklist_menu()
 	if i == 'e':
 		checklist_no = int(input('Item No: '))
-		id_no = database.Checklist.find_id(item_no=checklist_no)
-		task_menu(id_no)
+		check_id = database.Checklist.find_id(item_no=checklist_no)
+		print(check_id)
+		task_menu(check_id)
 
-def task_menu(checklist_id):
-	query = database.session.query(database.Task).filter(checklist_id==checklist_id).all()
+def task_menu(check_id):
+	item_list = database.session.query(database.Task).filter(database.Task.checklist_id==check_id).all()
+	title = database.session.query(database.Checklist).filter_by(id=check_id).first()
 	clear()
 	c1 = []
 	c2 = []
-	for entry in query:
+	print(title.name)
+	for entry in item_list:
 		c1.append(entry.id)
 		c2.append(entry.description)
 	df = pd.DataFrame({'id' : c1,
@@ -64,19 +67,19 @@ def task_menu(checklist_id):
 	if i == 'n':
 		new_name = input('Task: ')
 		#next_item=database.next_item_no(database.Checklist)
-		database.Task.add_item(checklist_id=checklist_id, description=new_name)
-		task_menu(checklist_id)
+		database.Task.add_item(checklist_id=check_id, description=new_name)
+		task_menu(check_id)
 	if i == 'e':
 		item_no = int(input('id: '))
 		id_no = database.Task.find_id(id=item_no)
 		new_name =input('Rename Task: ')
 		database.Task.update_item(id=id_no, description=new_name)
-		task_menu(checklist_id)
+		task_menu(check_id)
 	if i == 'd':
 		item_no = int(input('id: '))
 		id_no = database.Task.find_id(id=item_no)
 		database.Task.delete_item(id=id_no)
-		task_menu(checklist_id)
+		task_menu(check_id)
 	if i == 'b':
 		checklist_menu()
 

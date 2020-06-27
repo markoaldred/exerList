@@ -46,7 +46,7 @@ class Checklist(BaseMixin, Base):
     instance_checklists = relationship("InstanceChecklist", back_populates="checklist")
     
     def __repr__(self):
-        return "<User(%r, %r)>" % (
+        return "<Checklist(%r, %r)>" % (
             self.id, self.name)
 
 class Task(BaseMixin, Base):
